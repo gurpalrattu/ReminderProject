@@ -22,6 +22,12 @@ public class ReminderActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mListView = (ListView) findViewById(R.id.reminders_list_view);
+
+        // Array Adapter is used to bind my Strings to the list view I created
+        // it does this by selecting the list view(this/reminders_list_view), choosing the layout(reminders_row),
+        // choosing the the text view(row_text), and replacing the text in that text view with
+        // the string I created(first record, second record, third record)
+
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
                 this,
                 R.layout.reminders_row,
