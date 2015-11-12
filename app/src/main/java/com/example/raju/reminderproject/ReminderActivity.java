@@ -1,8 +1,7 @@
 package com.example.raju.reminderproject;
 
+import android.database.Cursor;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -11,31 +10,59 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import java.sql.SQLException;
 
 public class ReminderActivity extends AppCompatActivity {
 
     private ListView mListView;
+    private RemindersDBAdapter mDbAdapter;
+    private RemindersSimpleCursorAdapter mCursorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reminder);
+        mListView = (ListView) findViewById(R.id.reminders_list_view);
+        mListView.setDivider(null);
+        mDbAdapter = new RemindersDBAdapter(this);
+        try {
+            mDbAdapter.open();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        Cursor cursor = mDbAdapter.fetchAllReminders();
+
+        // from columns defined in the db
+        String[] from = new String[]{
+                RemindersDBAdapter.COL_CONTENT
+        };
+
+        // to the ids of views in the layout
+        int[] to = new int[] {
+                R.id.row_text
+        };
+
+        mCursorAdapter = new RemindersSimpleCursorAdapter(
+                //context
+                ReminderActivity.this,
+                //the layout of the row
+                R.layout.reminders_row,
+                // cursor
+                cursor,
+                // from columns defined in the db
+                from,
+                // to the ids of views in the layout
+                to,
+                // flag - not used
+                0);
+
+        // the cursorAdapter (controller) is now updating the listView (view)
+        // with data from the db(model)
+        mListView.setAdapter(mCursorAdapter);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        mListView = (ListView) findViewById(R.id.reminders_list_view);
-
-        // Array Adapter is used to bind my Strings to the list view I created
-        // it does this by selecting the list view(this/reminders_list_view), choosing the layout(reminders_row),
-        // choosing the the text view(row_text), and replacing the text in that text view with
-        // the string I created(first record, second record, third record)
-
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
-                this,
-                R.layout.reminders_row,
-                R.id.row_text,
-                new String[]{"first record", "second record", "third record"});
-
-        mListView.setAdapter(arrayAdapter);
 
 
     }
